@@ -204,7 +204,7 @@ searchBtn.addEventListener('click', () => {
     cityInput.value = '';
 });
 
-locationBtn.addEventListener('click', () => {
+/*locationBtn.addEventListener('click', () => {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition((position) => {
             const lat = position.coords.latitude;
@@ -216,6 +216,44 @@ locationBtn.addEventListener('click', () => {
     } else {
         alert('Geolocation is not supported by this browser.');
     }
+});*/
+locationBtn.addEventListener('click', () => {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude;
+                const lon = position.coords.longitude;
+                // Fetch weather for the exact location
+                fetchWeather('', lat, lon);
+                console.log(`Latitude: ${lat}, Longitude: ${lon}`);
+            },
+            (error) => {
+                // Handle different geolocation errors
+                switch (error.code) {
+                    case error.PERMISSION_DENIED:
+                        alert('You denied the request for location. Please enable location access.');
+                        break;
+                    case error.POSITION_UNAVAILABLE:
+                        alert('Location information is unavailable. Please check your device settings.');
+                        break;
+                    case error.TIMEOUT:
+                        alert('The request to get your location timed out. Please try again.');
+                        break;
+                    default:
+                        alert('An unknown error occurred while retrieving your location.');
+                        break;
+                }
+            },
+            {
+                enableHighAccuracy: true, // Use high-accuracy GPS data if available
+                timeout: 10000,           // Timeout after 10 seconds
+                maximumAge: 60000         // Cache location for 1 minute
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by your browser. Please use a modern browser.');
+    }
 });
+
 
 updateRecentCitiesDropdown();
