@@ -1,4 +1,4 @@
-const apiKey = '13fb57b6efb3d94e936280dd42911093';  // Replace with your actual API key
+const apiKey = '13fb57b6efb3d94e936280dd42911093';
 const apiUrl = 'https://api.openweathermap.org/data/2.5/weather';
 const forecastUrl = 'https://api.openweathermap.org/data/2.5/forecast';
 
@@ -65,7 +65,7 @@ function displayCurrentWeather(data) {
     addRecentSearch(data.name);
 }
 
-function displayForecast(data) {
+/*function displayForecast(data) {
   const forecasts = {};
   const today = new Date();
   const startDate = new Date(today); // Start from today
@@ -113,7 +113,58 @@ function displayForecast(data) {
   });
 
   forecast.innerHTML = forecastHTML;
-}
+}*/
+
+function displayForecast(data) {
+    const forecasts = {};
+    const today = new Date();
+    const startDate = new Date(today); 
+    const endDate = new Date(today);
+    endDate.setDate(today.getDate() + 5); // Cover 5 unique days including today
+  
+    // Loop through the forecast list and filter forecasts for 5 unique days
+    let count = 0;
+    data.list.forEach(item => {
+        const forecastDate = new Date(item.dt * 1000);
+        const formattedDate = forecastDate.toLocaleDateString('en-IN', {
+            weekday: 'short',
+            year: 'numeric',
+            month: 'short',
+            day: 'numeric',
+        });
+  
+        if (!forecasts[formattedDate] && count < 5) { // Ensure one forecast per day
+            forecasts[formattedDate] = item;
+            count++;
+        }
+    });
+  
+    if (Object.keys(forecasts).length === 0) {
+        forecast.innerHTML = '<p>No forecast data available.</p>';
+        return;
+    }
+  
+    let forecastHTML = '<h2 class="text-xl font-bold">Weather Forecast</h2>';
+    Object.keys(forecasts).forEach(date => {
+        const item = forecasts[date];
+        const forecastIcon = `https://openweathermap.org/img/wn/${item.weather[0].icon}@2x.png`;
+        forecastHTML += `
+            <div class="border p-2 my-2 flex items-center space-x-4">
+                <p class="text-lg">${date}</p>
+                <p class="text-lg">Temp: ${item.main.temp} °C</p>
+                <p class="text-lg">Humidity: ${item.main.humidity}%</p>
+                <p class="text-lg">Wind Speed: ${item.wind.speed} m/s</p>
+                <div class="flex items-center space-x-2">
+                    <img src="${forecastIcon}" alt="${item.weather[0].description}" class="w-12 h-12">
+                    <span class="text-xl">${item.weather[0].description}</span>
+                </div>
+            </div>
+        `;
+    });
+  
+    forecast.innerHTML = forecastHTML;
+  }
+  
 
 
 function addRecentSearch(city) {
